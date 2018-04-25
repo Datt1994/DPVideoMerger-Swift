@@ -1,5 +1,7 @@
 # DPVideoMerger-Swift
 
+For Objective C :- https://github.com/Datt1994/DPVideoMerger
+
 Step 1:-  Copy & paste DPVideoMerger.swift file into your project 
 
 Step 2:-  Usage 
