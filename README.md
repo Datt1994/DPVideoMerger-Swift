@@ -1,11 +1,11 @@
-# DPVideoMerger-Swift
+## DPVideoMerger-Swift
 
-For Objective C :- https://github.com/Datt1994/DPVideoMerger
+**For Objective C** :- [DPVideoMerger](https://github.com/Datt1994/DPVideoMerger)
 
-Step 1:-  Copy & paste DPVideoMerger.swift file into your project 
+**Step 1**:-  Copy & paste `DPVideoMerger.swift` file into your project 
 
-Step 2:-  Usage 
-
+**Step 2**:-  Usage 
+```swift
         import AVKit
         
         let fileURL = Bundle.main.url(forResource: "1", withExtension: "mp4")
@@ -27,3 +27,4 @@ Step 2:-  Usage
                 objAVPlayerVC.player?.play()
             }) 
         })
+```
