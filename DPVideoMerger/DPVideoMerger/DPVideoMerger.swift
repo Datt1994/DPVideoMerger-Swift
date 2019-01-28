@@ -23,21 +23,40 @@ class DPVideoMerger: NSObject {
         }
         var instructions = [AVVideoCompositionInstructionProtocol]()
         var isError = false
-        var currentTime: CMTime = kCMTimeZero
+        var currentTime: CMTime = CMTime.zero
         var videoSize = CGSize.zero
         var highestFrameRate = 0
         for  videoFileURL in videoFileURLs {
             let options = [AVURLAssetPreferPreciseDurationAndTimingKey: true]
             let asset = AVURLAsset(url: videoFileURL, options: options)
-            let videoAsset: AVAssetTrack? = asset.tracks(withMediaType: .video).first
+            guard let videoAsset: AVAssetTrack = asset.tracks(withMediaType: .video).first else {
+                return
+            }
             if videoSize.equalTo(CGSize.zero) {
-                videoSize = (videoAsset?.naturalSize)!
+                videoSize = (videoAsset.naturalSize)
             }
-            if videoSize.height < (videoAsset?.naturalSize.height)! {
-                videoSize.height = (videoAsset?.naturalSize.height)!
+            var isVideoAssetPortrait_ = false
+            let videoTransform: CGAffineTransform = videoAsset.preferredTransform
+            
+            if videoTransform.a == 0 && videoTransform.b == 1.0 && videoTransform.c == -1.0 && videoTransform.d == 0 {
+                isVideoAssetPortrait_ = true
             }
-            if videoSize.width < (videoAsset?.naturalSize.width)! {
-                videoSize.width = (videoAsset?.naturalSize.width)!
+            if videoTransform.a == 0 && videoTransform.b == -1.0 && videoTransform.c == 1.0 && videoTransform.d == 0 {
+                isVideoAssetPortrait_ = true
+            }
+            
+            var videoAssetWidth: CGFloat = videoAsset.naturalSize.width
+            var videoAssetHeight: CGFloat = videoAsset.naturalSize.height
+            if isVideoAssetPortrait_ {
+                videoAssetWidth = videoAsset.naturalSize.height
+                videoAssetHeight = videoAsset.naturalSize.width
+            }
+            
+            if videoSize.height < (videoAssetHeight) {
+                videoSize.height = (videoAssetHeight)
+            }
+            if videoSize.width < (videoAssetWidth) {
+                videoSize.width = (videoAssetWidth)
             }
         }
         
@@ -54,41 +73,92 @@ class DPVideoMerger: NSObject {
             }
             let currentFrameRate = Int(roundf((videoAsset.nominalFrameRate)))
             highestFrameRate = (currentFrameRate > highestFrameRate) ? currentFrameRate : highestFrameRate
-            let trimmingTime: CMTime = CMTimeMake(Int64(lround(Double((videoAsset.nominalFrameRate) / (videoAsset.nominalFrameRate)))), Int32((videoAsset.nominalFrameRate)))
-            let timeRange: CMTimeRange = CMTimeRangeMake(trimmingTime, CMTimeSubtract((videoAsset.timeRange.duration), trimmingTime))
+            let trimmingTime: CMTime = CMTimeMake(value: Int64(lround(Double((videoAsset.nominalFrameRate) / (videoAsset.nominalFrameRate)))), timescale: Int32((videoAsset.nominalFrameRate)))
+            let timeRange: CMTimeRange = CMTimeRangeMake(start: trimmingTime, duration: CMTimeSubtract((videoAsset.timeRange.duration), trimmingTime))
             do {
                 try videoTrack.insertTimeRange(timeRange, of: videoAsset, at: currentTime)
                 try audioTrack.insertTimeRange(timeRange, of: audioAsset, at: currentTime)
                 
                 let videoCompositionInstruction = AVMutableVideoCompositionInstruction.init()
-                videoCompositionInstruction.timeRange = CMTimeRangeMake(currentTime, timeRange.duration)
+                videoCompositionInstruction.timeRange = CMTimeRangeMake(start: currentTime, duration: timeRange.duration)
                 let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
                 
+                var isVideoAssetPortrait_ = false
+                let videoTransform: CGAffineTransform = videoAsset.preferredTransform
+                var videoAssetOrientation_: UIImage.Orientation = .up
+                if videoTransform.a == 0 && videoTransform.b == 1.0 && videoTransform.c == -1.0 && videoTransform.d == 0 {
+                    videoAssetOrientation_ = .right
+                    isVideoAssetPortrait_ = true
+                }
+                if videoTransform.a == 0 && videoTransform.b == -1.0 && videoTransform.c == 1.0 && videoTransform.d == 0 {
+                    videoAssetOrientation_ = .left
+                    isVideoAssetPortrait_ = true
+                }
+                if videoTransform.a == 1.0 && videoTransform.b == 0 && videoTransform.c == 0 && videoTransform.d == 1.0 {
+                    videoAssetOrientation_ = .up
+                }
+                if videoTransform.a == -1.0 && videoTransform.b == 0 && videoTransform.c == 0 && videoTransform.d == -1.0 {
+                    videoAssetOrientation_ = .down
+                }
+                
+                var videoAssetWidth: CGFloat = videoAsset.naturalSize.width
+                var videoAssetHeight: CGFloat = videoAsset.naturalSize.height
+                if isVideoAssetPortrait_ {
+                    videoAssetWidth = videoAsset.naturalSize.height
+                    videoAssetHeight = videoAsset.naturalSize.width
+                }
+
+                
+                
                 var tx: Int = 0
-                if videoSize.width - videoAsset.naturalSize.width != 0 {
-                    tx = Int((videoSize.width - videoAsset.naturalSize.width) / 2)
+                if videoSize.width - videoAssetWidth != 0 {
+                    tx = Int((videoSize.width - videoAssetWidth) / 2)
                 }
                 var ty: Int = 0
-                if videoSize.height - videoAsset.naturalSize.height != 0 {
-                    ty = Int((videoSize.height - videoAsset.naturalSize.height) / 2)
+                if videoSize.height - videoAssetHeight != 0 {
+                    ty = Int((videoSize.height - videoAssetHeight) / 2)
                 }
                 var Scale = CGAffineTransform(scaleX: 1, y: 1)
+                var factor : CGFloat = 1.0
                 if tx != 0 && ty != 0 {
                     if tx <= ty {
-                        let factor = Float(videoSize.width / videoAsset.naturalSize.width)
+                        factor = CGFloat(videoSize.width / videoAssetWidth)
                         Scale = CGAffineTransform(scaleX: CGFloat(factor), y: CGFloat(factor))
                         tx = 0
-                        ty = Int((videoSize.height - videoAsset.naturalSize.height * CGFloat(factor)) / 2)
+                        ty = Int((videoSize.height - videoAssetHeight * CGFloat(factor)) / 2)
                     }
                     if tx > ty {
-                        let factor = Float(videoSize.height / videoAsset.naturalSize.height)
+                        factor = CGFloat(videoSize.height / videoAssetHeight)
                         Scale = CGAffineTransform(scaleX: CGFloat(factor), y: CGFloat(factor))
                         ty = 0
-                        tx = Int((videoSize.width - videoAsset.naturalSize.width * CGFloat(factor)) / 2)
+                        tx = Int((videoSize.width - videoAssetWidth * CGFloat(factor)) / 2)
                     }
                 }
-                let Move = CGAffineTransform(translationX: CGFloat(tx), y: CGFloat(ty))
-                layerInstruction.setTransform(Scale.concatenating(Move), at: kCMTimeZero)
+               
+                
+                var Move: CGAffineTransform!
+                var transform: CGAffineTransform!
+                switch videoAssetOrientation_ {
+                case UIImage.Orientation.right:
+                    Move = CGAffineTransform(translationX: (videoAssetWidth * factor) + CGFloat(tx)  , y: CGFloat(ty))
+                    transform = CGAffineTransform(rotationAngle:degreeToRadian(90))
+                layerInstruction.setTransform(transform.concatenating(Scale.concatenating(Move)), at: .zero)
+                case UIImage.Orientation.left:
+                    Move = CGAffineTransform(translationX: CGFloat(tx), y: videoSize.height - CGFloat(ty))
+                    transform = CGAffineTransform(rotationAngle: degreeToRadian(270))
+                    layerInstruction.setTransform(transform.concatenating(Scale.concatenating(Move)), at: .zero)
+                case UIImage.Orientation.up:
+                    Move = CGAffineTransform(translationX: CGFloat(tx), y: CGFloat(ty))
+                    layerInstruction.setTransform(Scale.concatenating(Move), at: .zero)
+                case UIImage.Orientation.down:
+                    Move = CGAffineTransform(translationX: videoSize.width + CGFloat(tx), y: (videoAssetHeight*factor)+CGFloat(ty))
+                    transform = CGAffineTransform(rotationAngle: degreeToRadian(180))
+                    layerInstruction.setTransform(transform.concatenating(Scale.concatenating(Move)), at: .zero)
+                default:
+                    break;
+                }
+//                let Move = CGAffineTransform(translationX: CGFloat(tx), y: CGFloat(ty))
+//                layerInstruction.setTransform(Scale.concatenating(Move), at: CMTime.zero)
                 videoCompositionInstruction.layerInstructions = [layerInstruction]
                 instructions.append(videoCompositionInstruction)
                 currentTime = CMTimeAdd(currentTime, timeRange.duration)
@@ -107,7 +177,7 @@ class DPVideoMerger: NSObject {
             exportSession?.shouldOptimizeForNetworkUse = true
             let mutableVideoComposition = AVMutableVideoComposition.init()
             mutableVideoComposition.instructions = instructions
-            mutableVideoComposition.frameDuration = CMTimeMake(1, Int32(highestFrameRate))
+            mutableVideoComposition.frameDuration = CMTimeMake(value: 1, timescale: Int32(highestFrameRate))
             mutableVideoComposition.renderSize = videoSize
             exportSession?.videoComposition = mutableVideoComposition
             print("Composition Duration: %ld s", lround(CMTimeGetSeconds(composition.duration)))
@@ -155,5 +225,8 @@ class DPVideoMerger: NSObject {
     }
     func generateMergedVideoFilePath() -> String {
         return URL(fileURLWithPath: ((FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last)?.path)!).appendingPathComponent("\(UUID().uuidString)-mergedVideo.mp4").path
+    }
+    func degreeToRadian(_ degree: CGFloat) -> CGFloat {
+        return (.pi * degree / 180.0)
     }
 }
