@@ -1,10 +1,40 @@
-## DPVideoMerger-Swift
+# DPVideoMerger-Swift
 
 **For Objective C** :- [DPVideoMerger](https://github.com/Datt1994/DPVideoMerger)
 
-**Step 1**:-  Copy & paste `DPVideoMerger.swift` file into your project 
+## Installation with CocoaPods
 
-**Step 2**:-  Usage 
+[CocoaPods](http://cocoapods.org) is a dependency manager for Objective-C. You can install it with the following command:
+
+```bash
+$ gem install cocoapods
+```
+#### Podfile
+
+To integrate DPVideoMerger into your Xcode project using CocoaPods, specify it in your `Podfile`:
+
+```ruby
+source 'https://github.com/CocoaPods/Specs.git'
+platform :ios, '8.0'
+
+target 'TargetName' do
+pod 'DPVideoMerger-Swift'
+end
+```
+
+Then, run the following command:
+
+```bash
+$ pod install
+```
+
+
+## Add Manually 
+  
+  Download Project and copy-paste `DPVideoMerger.swift` file into your project 
+
+## Usage 
+
 ```swift
         import AVKit
         
