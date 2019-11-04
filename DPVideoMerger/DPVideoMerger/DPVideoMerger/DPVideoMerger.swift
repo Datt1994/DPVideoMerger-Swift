@@ -205,6 +205,8 @@ class DPVideoMerger: NSObject {
                         print("Exporting")
                     case .waiting:
                         print("Wating")
+                    @unknown default:
+                        fatalError()
                     }
                     
                 })

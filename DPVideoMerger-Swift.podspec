@@ -72,7 +72,7 @@ Pod::Spec.new do |s|
   # s.watchos.deployment_target = "2.0"
   # s.tvos.deployment_target = "9.0"
   s.platform     = :ios, "9.0"
-  s.swift_version = '4.2'
+  s.swift_version = '5.0'
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
   #  Specify the location from where the source should be retrieved.
@@ -91,7 +91,7 @@ Pod::Spec.new do |s|
   #
 
   # s.public_header_files = 'DPVideoMerger/DPVideoMerger/DPVideoMerger.swift'
-  s.source_files = 'DPVideoMerger/DPVideoMerger/DPVideoMerger.swift'
+  s.source_files = 'DPVideoMerger/DPVideoMerger/DPVideoMerger/DPVideoMerger.swift'
   # s.exclude_files = "Classes/Exclude"
 
   # s.public_header_files = "Classes/**/*.h"
