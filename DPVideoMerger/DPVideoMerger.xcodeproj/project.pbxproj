@@ -11,7 +11,7 @@
 		C63D87292036B77A00DD8D91 /* 2.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = C63D87252036B77A00DD8D91 /* 2.mp4 */; };
 		C63D872A2036B77A00DD8D91 /* 3.MOV in Resources */ = {isa = PBXBuildFile; fileRef = C63D87262036B77A00DD8D91 /* 3.MOV */; };
 		C63D872B2036B77A00DD8D91 /* 4.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = C63D87272036B77A00DD8D91 /* 4.mp4 */; };
-		C66392512371B4A30004BFC8 /* DPVideoMergerSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66392502371B4A30004BFC8 /* DPVideoMergerSwift.swift */; };
+		C66392532371B5CF0004BFC8 /* DPVideoMerger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66392522371B5CF0004BFC8 /* DPVideoMerger.swift */; };
 		C68DDA612034360200789E3C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68DDA602034360200789E3C /* AppDelegate.swift */; };
 		C68DDA632034360200789E3C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68DDA622034360200789E3C /* ViewController.swift */; };
 		C68DDA662034360200789E3C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C68DDA642034360200789E3C /* Main.storyboard */; };
@@ -24,7 +24,7 @@
 		C63D87252036B77A00DD8D91 /* 2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 2.mp4; sourceTree = "<group>"; };
 		C63D87262036B77A00DD8D91 /* 3.MOV */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = 3.MOV; sourceTree = "<group>"; };
 		C63D87272036B77A00DD8D91 /* 4.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 4.mp4; sourceTree = "<group>"; };
-		C66392502371B4A30004BFC8 /* DPVideoMergerSwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DPVideoMergerSwift.swift; sourceTree = "<group>"; };
+		C66392522371B5CF0004BFC8 /* DPVideoMerger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DPVideoMerger.swift; sourceTree = "<group>"; };
 		C68DDA5D2034360200789E3C /* DPVideoMerger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DPVideoMerger.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C68DDA602034360200789E3C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C68DDA622034360200789E3C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -75,7 +75,7 @@
 		C68DDA5F2034360200789E3C /* DPVideoMerger */ = {
 			isa = PBXGroup;
 			children = (
-				C69DFA3D2371B31D007F4865 /* DPVideoMerger */,
+				C66392522371B5CF0004BFC8 /* DPVideoMerger.swift */,
 				C63D87232036B77A00DD8D91 /* SampleVideos */,
 				C68DDA602034360200789E3C /* AppDelegate.swift */,
 				C68DDA622034360200789E3C /* ViewController.swift */,
@@ -83,14 +83,6 @@
 				C68DDA672034360200789E3C /* Assets.xcassets */,
 				C68DDA692034360200789E3C /* LaunchScreen.storyboard */,
 				C68DDA6C2034360200789E3C /* Info.plist */,
-			);
-			path = DPVideoMerger;
-			sourceTree = "<group>";
-		};
-		C69DFA3D2371B31D007F4865 /* DPVideoMerger */ = {
-			isa = PBXGroup;
-			children = (
-				C66392502371B4A30004BFC8 /* DPVideoMergerSwift.swift */,
 			);
 			path = DPVideoMerger;
 			sourceTree = "<group>";
@@ -172,9 +164,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C66392532371B5CF0004BFC8 /* DPVideoMerger.swift in Sources */,
 				C68DDA632034360200789E3C /* ViewController.swift in Sources */,
 				C68DDA612034360200789E3C /* AppDelegate.swift in Sources */,
-				C66392512371B4A30004BFC8 /* DPVideoMergerSwift.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
