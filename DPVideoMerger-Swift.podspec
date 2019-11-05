@@ -91,7 +91,7 @@ Pod::Spec.new do |s|
   #
 
   # s.public_header_files = 'DPVideoMerger/DPVideoMerger/DPVideoMerger.swift'
-  s.source_files = 'DPVideoMerger/DPVideoMerger/DPVideoMerger.swift'
+  s.source_files = 'DPVideoMerger/DPVideoMerger/DPVideoMerger/DPVideoMergerSwift.swift'
   # s.exclude_files = "Classes/Exclude"
 
   # s.public_header_files = "Classes/**/*.h"
