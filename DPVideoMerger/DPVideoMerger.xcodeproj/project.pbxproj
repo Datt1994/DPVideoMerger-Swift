@@ -56,14 +56,6 @@
 			path = SampleVideos;
 			sourceTree = "<group>";
 		};
-		C65F46D82370388B00B8062F /* DPVideoMerger */ = {
-			isa = PBXGroup;
-			children = (
-				C68DDA72203436D000789E3C /* DPVideoMerger.swift */,
-			);
-			path = DPVideoMerger;
-			sourceTree = "<group>";
-		};
 		C68DDA542034360200789E3C = {
 			isa = PBXGroup;
 			children = (
@@ -83,7 +75,7 @@
 		C68DDA5F2034360200789E3C /* DPVideoMerger */ = {
 			isa = PBXGroup;
 			children = (
-				C65F46D82370388B00B8062F /* DPVideoMerger */,
+				C68DDA72203436D000789E3C /* DPVideoMerger.swift */,
 				C63D87232036B77A00DD8D91 /* SampleVideos */,
 				C68DDA602034360200789E3C /* AppDelegate.swift */,
 				C68DDA622034360200789E3C /* ViewController.swift */,
