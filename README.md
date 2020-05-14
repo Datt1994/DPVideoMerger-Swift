@@ -49,6 +49,8 @@ $ pod install
             if error != nil {
                 let errorMessage = "Could not merge videos: \(error?.localizedDescription ?? "error")"
                 let alert = UIAlertController(title: "Error", message: errorMessage, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (a) in
+                }))
                 self.present(alert, animated: true) {() -> Void in }
                 return
             }
@@ -57,5 +59,21 @@ $ pod install
             self.present(objAVPlayerVC, animated: true, completion: {() -> Void in
                 objAVPlayerVC.player?.play()
             }) 
+        })
+        
+        DPVideoMerger().gridMergeVideos(withFileURLs: fileURLs, videoResolution: CGSize(width: 1000, height: 1000), completion: {(_ mergedVideoFile: URL?, _ error: Error?) -> Void in
+            if error != nil {
+                let errorMessage = "Could not merge videos: \(error?.localizedDescription ?? "error")"
+                let alert = UIAlertController(title: "Error", message: errorMessage, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (a) in
+                }))
+                self.present(alert, animated: true) {() -> Void in }
+                return
+            }
+            let objAVPlayerVC = AVPlayerViewController()
+            objAVPlayerVC.player = AVPlayer(url: mergedVideoFile!)
+            self.present(objAVPlayerVC, animated: true, completion: {() -> Void in
+                objAVPlayerVC.player?.play()
+            })
         })
 ```
