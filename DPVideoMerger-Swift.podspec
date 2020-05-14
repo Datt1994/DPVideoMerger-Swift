@@ -16,8 +16,8 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "DPVideoMerger-Swift"
-  s.version      = "1.5.2"
-  s.summary      = "Multiple videos merge in one video with manage scale and aspect ratio for Swift."
+  s.version      = "1.5.5"
+  s.summary      = "Multiple videos merge in one video with manage scale & aspect ratio and also merge 4 videos to grid layout for Swift."
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?
@@ -71,7 +71,7 @@ Pod::Spec.new do |s|
   # s.osx.deployment_target = "10.7"
   # s.watchos.deployment_target = "2.0"
   # s.tvos.deployment_target = "9.0"
-  s.platform     = :ios, "10.0"
+  s.platform     = :ios, "9.0"
   s.swift_version = '5.0'
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   #
@@ -79,7 +79,7 @@ Pod::Spec.new do |s|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  s.source       = { :git => "https://github.com/Datt1994/DPVideoMerger-Swift.git", :tag => s.version  ,:commit => "a8ac3406738741c5321134becef9efe7dd776d7d" }
+  s.source       = { :git => "https://github.com/Datt1994/DPVideoMerger-Swift.git", :tag => s.version } #,:commit => "4b026252435ccca81bab8b326c6d57d5c405a924"
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #

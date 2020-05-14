@@ -9,9 +9,9 @@
 import UIKit
 import AVKit
 
-class DPVideoMerger: NSObject {
+public final class DPVideoMerger: NSObject {
     //videoQuality : AVAssetExportPresetMediumQuality(default) , AVAssetExportPresetLowQuality , AVAssetExportPresetHighestQuality
-    func mergeVideos(withFileURLs
+    public func mergeVideos(withFileURLs
         videoFileURLs: [URL],
         videoResolution:CGSize = CGSize(width: -1, height: -1),
         videoQuality:String = AVAssetExportPresetMediumQuality,
@@ -244,7 +244,7 @@ class DPVideoMerger: NSObject {
         return NSError(domain: "DPVideoMerger", code: 404, userInfo: (userInfo as! [String : Any]))
     }
     
-    func gridMergeVideos(withFileURLs
+    public func gridMergeVideos(withFileURLs
         videoFileURLs: [URL],
         videoResolution: CGSize,
         isRepeatVideo: Bool = false,
