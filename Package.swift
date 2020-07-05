@@ -13,3 +13,4 @@ let package = Package(name: "DPVideoMerger-Swift",
                                         path: "DPVideoMerger/DPVideoMerger/",
                                         publicHeadersPath: "")],
                       swiftLanguageVersions: [.v5])
+

@@ -442,3 +442,4 @@ public final class DPVideoMerger: NSObject {
         return (.pi * degree / 180.0)
     }
 }
+
