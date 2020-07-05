@@ -55,6 +55,13 @@ github "Datt1994/DPVideoMerger-Swift"
 Run `carthage` to build the framework and drag the framework (`DPVideoMerger_Swift.framework`) into your Xcode project.
 
 
+## Installation with Swift Package Manager
+
+The [Swift Package Manager](https://swift.org/package-manager/) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler.
+
+To add the library as package dependency to your Xcode project, select File > Swift Packages > Add Package Dependency and enter its repository URL `https://github.com/Datt1994/DPVideoMerger-Swift.git`
+
+
 ## Add Manually 
   
   Download Project and copy-paste `DPVideoMerger.swift` file into your project 
