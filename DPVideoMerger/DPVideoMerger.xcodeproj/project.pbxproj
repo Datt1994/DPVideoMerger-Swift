@@ -98,6 +98,7 @@
 		C68DDA542034360200789E3C = {
 			isa = PBXGroup;
 			children = (
+				C6ACD1B024B22130004D58F7 /* Example */,
 				C68DDA5F2034360200789E3C /* DPVideoMerger */,
 				C69DC8E224845F6F00A39B61 /* DPVideoMerger-Swift */,
 				C68DDA5E2034360200789E3C /* Products */,
@@ -117,13 +118,6 @@
 			isa = PBXGroup;
 			children = (
 				C66392522371B5CF0004BFC8 /* DPVideoMerger.swift */,
-				C63D87232036B77A00DD8D91 /* SampleVideos */,
-				C68DDA602034360200789E3C /* AppDelegate.swift */,
-				C68DDA622034360200789E3C /* ViewController.swift */,
-				C68DDA642034360200789E3C /* Main.storyboard */,
-				C68DDA672034360200789E3C /* Assets.xcassets */,
-				C68DDA692034360200789E3C /* LaunchScreen.storyboard */,
-				C68DDA6C2034360200789E3C /* Info.plist */,
 			);
 			path = DPVideoMerger;
 			sourceTree = "<group>";
@@ -135,6 +129,20 @@
 				C69DC8E424845F6F00A39B61 /* Info.plist */,
 			);
 			path = "DPVideoMerger-Swift";
+			sourceTree = "<group>";
+		};
+		C6ACD1B024B22130004D58F7 /* Example */ = {
+			isa = PBXGroup;
+			children = (
+				C68DDA6C2034360200789E3C /* Info.plist */,
+				C63D87232036B77A00DD8D91 /* SampleVideos */,
+				C68DDA602034360200789E3C /* AppDelegate.swift */,
+				C68DDA622034360200789E3C /* ViewController.swift */,
+				C68DDA642034360200789E3C /* Main.storyboard */,
+				C68DDA672034360200789E3C /* Assets.xcassets */,
+				C68DDA692034360200789E3C /* LaunchScreen.storyboard */,
+			);
+			path = Example;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -419,7 +427,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = DPVideoMerger/Info.plist;
+				INFOPLIST_FILE = Example/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.Datt.DPVideoMerger;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -437,7 +445,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = DPVideoMerger/Info.plist;
+				INFOPLIST_FILE = Example/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.Datt.DPVideoMerger;
 				PRODUCT_NAME = "$(TARGET_NAME)";
