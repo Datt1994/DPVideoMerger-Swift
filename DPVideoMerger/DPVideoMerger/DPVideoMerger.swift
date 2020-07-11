@@ -9,9 +9,26 @@
 import UIKit
 import AVKit
 
-public final class DPVideoMerger: NSObject {
-    //videoQuality : AVAssetExportPresetMediumQuality(default) , AVAssetExportPresetLowQuality , AVAssetExportPresetHighestQuality
-    public func mergeVideos(withFileURLs
+
+
+@objc protocol VideoMerger {
+    func mergeVideos(withFileURLs videoFileURLs: [URL], videoResolution:CGSize, videoQuality:String, completion: @escaping (_ mergedVideoURL: URL?, _ error: Error?) -> Void)
+    func gridMergeVideos(withFileURLs videoFileURLs: [URL], videoResolution: CGSize, isRepeatVideo: Bool, videoDuration: Int, videoQuality: String, completion: @escaping (_ mergedVideoURL: URL?, _ error: Error?) -> Void)
+}
+
+@objc open class DPVideoMerger : NSObject {
+}
+
+extension DPVideoMerger : VideoMerger {
+    /// Multiple videos merge in one video with manage scale & aspect ratio
+    /// - Parameters:
+    ///   - videoFileURLs: Video file path URLs, Array of videos that going to merge
+    ///   - videoResolution: Output video resolution, (defult:  CGSize(width: -1, height: -1), find max width and height from provided videos)
+    ///   - videoQuality: AVAssetExportPresetMediumQuality(default) , AVAssetExportPresetLowQuality , AVAssetExportPresetHighestQuality
+    ///   - completion: Completion give  2 optional  values, 1)mergedVideoURL: URL path of successfully merged video   2)error: Gives Error object if some error occur in videos merging process
+    ///   - mergedVideoURL: URL path of successfully merged video
+    ///   - error: Gives Error object if some error occur in videos merging process
+    open func mergeVideos(withFileURLs
         videoFileURLs: [URL],
         videoResolution:CGSize = CGSize(width: -1, height: -1),
         videoQuality:String = AVAssetExportPresetMediumQuality,
@@ -154,7 +171,7 @@ public final class DPVideoMerger: NSObject {
                 switch videoAssetOrientation_ {
                 case UIImage.Orientation.right:
                     Move = CGAffineTransform(translationX: (videoAssetWidth * factor) + CGFloat(tx)  , y: CGFloat(ty))
-                    transform = CGAffineTransform(rotationAngle:degreeToRadian(90))
+                    transform = CGAffineTransform(rotationAngle: degreeToRadian(90))
                 layerInstruction.setTransform(transform.concatenating(Scale.concatenating(Move)), at: .zero)
                 case UIImage.Orientation.left:
                     Move = CGAffineTransform(translationX: CGFloat(tx), y: videoSize.height - CGFloat(ty))
@@ -225,26 +242,36 @@ public final class DPVideoMerger: NSObject {
             }
         }
     }
-    func videoTarckError() -> Error {
+    fileprivate func videoTarckError() -> Error {
         let userInfo: [AnyHashable : Any] =
             [ NSLocalizedDescriptionKey :  NSLocalizedString("error", value: "Provide correct video file", comment: "") ,
               NSLocalizedFailureReasonErrorKey : NSLocalizedString("error", value: "No video track available", comment: "")]
         return NSError(domain: "DPVideoMerger", code: 404, userInfo: (userInfo as! [String : Any]))
     }
-    func audioTarckError() -> Error {
+    fileprivate func audioTarckError() -> Error {
         let userInfo: [AnyHashable : Any] =
             [ NSLocalizedDescriptionKey :  NSLocalizedString("error", value: "Video file had no Audio track", comment: "") ,
               NSLocalizedFailureReasonErrorKey : NSLocalizedString("error", value: "No Audio track available", comment: "")]
         return NSError(domain: "DPVideoMerger", code: 404, userInfo: (userInfo as! [String : Any]))
     }
-    func videoSizeError() -> Error {
+    fileprivate func videoSizeError() -> Error {
         let userInfo: [AnyHashable : Any] =
             [ NSLocalizedDescriptionKey :  NSLocalizedString("error", value: "videoSize height/width should grater than equal to 100", comment: "") ,
               NSLocalizedFailureReasonErrorKey : NSLocalizedString("error", value: "videoSize too small", comment: "")]
         return NSError(domain: "DPVideoMerger", code: 404, userInfo: (userInfo as! [String : Any]))
     }
     
-    public func gridMergeVideos(withFileURLs
+    /// Merge 4 videos to grid layout
+    /// - Parameters:
+    ///   - videoFileURLs: Video file path URLs, Array of 4 videos that going to grid merge
+    ///   - videoResolution: Output video resolution
+    ///   - isRepeatVideo: Repeat Video on grid if one or more video have shorter duartion time then output video duration
+    ///   - videoDuration: Output video duration (defult:  -1, find max duration from provided 4 videos)
+    ///   - videoQuality: AVAssetExportPresetMediumQuality(default) , AVAssetExportPresetLowQuality , AVAssetExportPresetHighestQuality
+    ///   - completion: completion give  2 optional  values, 1)mergedVideoURL: URL path of successfully grid merged video  2)error: gives Error object if some error occur in videos merging process
+    ///   - mergedVideoURL: URL path of successfully grid merged video
+    ///   - error: gives Error object if some error occur in videos merging process
+    open func gridMergeVideos(withFileURLs
         videoFileURLs: [URL],
         videoResolution: CGSize,
         isRepeatVideo: Bool = false,
@@ -421,24 +448,24 @@ public final class DPVideoMerger: NSObject {
         
     }
     
-    func videoCountError() -> Error {
+    fileprivate func videoCountError() -> Error {
         let userInfo: [AnyHashable : Any] =
             [ NSLocalizedDescriptionKey :  NSLocalizedString("error", value: "Provide 4 Videos", comment: "") ,
               NSLocalizedFailureReasonErrorKey : NSLocalizedString("error", value: "gridMerge required 4 videos to merge", comment: "")]
         return NSError(domain: "DPVideoMerger", code: 404, userInfo: (userInfo as! [String : Any]))
     }
     
-    func videoDurationError() -> Error {
+    fileprivate func videoDurationError() -> Error {
         let userInfo: [AnyHashable : Any] =
             [ NSLocalizedDescriptionKey :  NSLocalizedString("error", value: "videoDuration should grater than equal to logest video duration from all videoes.", comment: "") ,
               NSLocalizedFailureReasonErrorKey : NSLocalizedString("error", value: "videoDuration is small to complete videoes", comment: "")]
         return NSError(domain: "DPVideoMerger", code: 404, userInfo: (userInfo as! [String : Any]))
     }
     
-    func generateMergedVideoFilePath() -> String {
+    fileprivate func generateMergedVideoFilePath() -> String {
         return URL(fileURLWithPath: ((FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).last)?.path)!).appendingPathComponent("\(UUID().uuidString)-mergedVideo.mp4").path
     }
-    func degreeToRadian(_ degree: CGFloat) -> CGFloat {
+    fileprivate func degreeToRadian(_ degree: CGFloat) -> CGFloat {
         return (.pi * degree / 180.0)
     }
 }
