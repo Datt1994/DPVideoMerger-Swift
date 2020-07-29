@@ -143,6 +143,58 @@ class ViewController: UIViewController {
         
     }
     
+    @IBAction func btnParallelMerageAction(_ sender: UIButton) {
+        
+        if arrIndex.count == 0 {
+            print("please select video")
+            return
+        }
+        activityIndicatorView.isHidden = false
+        activityIndicatorView.startAnimating()
+        view.isUserInteractionEnabled = false
+        //        let fileURL = Bundle.main.url(forResource: "1", withExtension: "mp4")
+        //        let fileURL1 = Bundle.main.url(forResource: "2", withExtension: "mp4")
+        //        let fileURL2 = Bundle.main.url(forResource: "3", withExtension: "MOV")
+        //        let fileURL3 = Bundle.main.url(forResource: "4", withExtension: "mp4")
+        //        let fileURLs = [fileURL, fileURL1, fileURL2, fileURL3]
+        var fileURLs = [URL]()
+        //        arrIndex.enumerateObjects({ indexPath, idx, stop in
+        for indexPath in arrIndex {
+            let object = self.arrImgAssets[indexPath.row]
+            self.imageManager.requestAVAsset(forVideo: object, options: nil, resultHandler: { asset, audioMix, info in
+                let url = ((asset as? AVURLAsset)?.url)?.standardizedFileURL
+                //                        if let url = url {
+                //                            print("\(url)")
+                //                        }
+                //                        print("url = \(url?.absoluteString ?? "")")
+                //                        print("url = \(url?.relativePath ?? "")")
+                if let url = url {
+                    fileURLs.append(url)
+                }
+                if fileURLs.count == self.arrIndex.count {
+                    DPVideoMerger().parallelMergeVideos(withFileURLs: fileURLs, videoResolution: CGSize(width: 1000, height: 900),isRepeatVideo: true, videoQuality:AVAssetExportPresetHighestQuality , alignment: .vertical ,completion: {(_ mergedVideoFile: URL?, _ error: Error?) -> Void in
+                        self.activityIndicatorView.stopAnimating()
+                        self.view.isUserInteractionEnabled = true
+                        self.activityIndicatorView.isHidden = true
+                        if error != nil {
+                            let errorMessage = "Could not merge videos: \(error?.localizedDescription ?? "error")"
+                            let alert = UIAlertController(title: "Error", message: errorMessage, preferredStyle: .alert)
+                            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (a) in
+                            }))
+                            self.present(alert, animated: true) {() -> Void in }
+                            return
+                        }
+                        let objAVPlayerVC = AVPlayerViewController()
+                        objAVPlayerVC.player = AVPlayer(url: mergedVideoFile!)
+                        self.present(objAVPlayerVC, animated: true, completion: {() -> Void in
+                            objAVPlayerVC.player?.play()
+                        })
+                        
+                    })
+                }
+            })
+        }
+    }
 }
 
 extension ViewController : UICollectionViewDelegate , UICollectionViewDataSource , UICollectionViewDelegateFlowLayout {
