@@ -106,8 +106,10 @@ DPVideoMerger().mergeVideos(withFileURLs: fileURLs as! [URL], completion: {(_ me
 /// Merge 4 videos to grid layout
 /// - Parameters:
 ///   - videoFileURLs: Video file path URLs, Array of 4 videos that going to grid merge
+///   - audioFileURL: Optional audio file for Merged Video
 ///   - videoResolution: Output video resolution
 ///   - isRepeatVideo: Repeat Video on grid if one or more video have shorter duartion time then output video duration
+///   - isRepeatAudio: Repeat Audio if Merged video have longer duartion time then provided Audio duration
 ///   - videoDuration: Output video duration (defult:  -1, find max duration from provided 4 videos)
 ///   - videoQuality: AVAssetExportPresetMediumQuality(default) , AVAssetExportPresetLowQuality , AVAssetExportPresetHighestQuality
 ///   - completion: completion give  2 optional  values, 1)mergedVideoURL: URL path of successfully grid merged video  2)error: gives Error object if some error occur in videos merging process
@@ -133,8 +135,10 @@ DPVideoMerger().gridMergeVideos(withFileURLs: fileURLs, videoResolution: CGSize(
 /// Merge side by side videos layout
 /// - Parameters:
 ///   - videoFileURLs: Video file path URLs, Array  videos that going to parallel merge
+///   - audioFileURL: Optional audio file for Merged Video
 ///   - videoResolution: Output video resolution
-///   - isRepeatVideo: Repeat Video on grid if one or more video have shorter duartion time then output video duration
+///   - isRepeatVideo: Repeat Video if one or more video have shorter duartion time then output video duration
+///   - isRepeatAudio: Repeat Audio if Merged video have longer duartion time then provided Audio duration
 ///   - videoDuration: Output video duration (defult:  -1, find max duration from provided videos)
 ///   - videoQuality: AVAssetExportPresetMediumQuality(default) , AVAssetExportPresetLowQuality , AVAssetExportPresetHighestQuality
 ///   - alignment: Video merge alignment -1) vertical 2) horizontal (defult: vertical)

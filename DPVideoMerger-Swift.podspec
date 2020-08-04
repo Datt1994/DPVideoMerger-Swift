@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   #
 
   s.name         = "DPVideoMerger-Swift"
-  s.version      = "1.5.8"
+  s.version      = "1.5.9"
   s.summary      = "Multiple videos merge in one video with manage scale & aspect ratio and also merge 4 videos to grid layout for Swift."
 
   # This description is used to generate tags and improve search results.

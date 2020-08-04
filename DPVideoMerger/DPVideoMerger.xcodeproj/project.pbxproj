@@ -12,6 +12,7 @@
 		C63D872A2036B77A00DD8D91 /* 3.MOV in Resources */ = {isa = PBXBuildFile; fileRef = C63D87262036B77A00DD8D91 /* 3.MOV */; };
 		C63D872B2036B77A00DD8D91 /* 4.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = C63D87272036B77A00DD8D91 /* 4.mp4 */; };
 		C66392532371B5CF0004BFC8 /* DPVideoMerger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66392522371B5CF0004BFC8 /* DPVideoMerger.swift */; };
+		C67CCCE624DA111300846D8D /* file_example_MP3_1MG.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C67CCCE524DA111300846D8D /* file_example_MP3_1MG.mp3 */; };
 		C68DDA612034360200789E3C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68DDA602034360200789E3C /* AppDelegate.swift */; };
 		C68DDA632034360200789E3C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C68DDA622034360200789E3C /* ViewController.swift */; };
 		C68DDA662034360200789E3C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C68DDA642034360200789E3C /* Main.storyboard */; };
@@ -53,6 +54,7 @@
 		C63D87262036B77A00DD8D91 /* 3.MOV */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = 3.MOV; sourceTree = "<group>"; };
 		C63D87272036B77A00DD8D91 /* 4.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = 4.mp4; sourceTree = "<group>"; };
 		C66392522371B5CF0004BFC8 /* DPVideoMerger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DPVideoMerger.swift; sourceTree = "<group>"; };
+		C67CCCE524DA111300846D8D /* file_example_MP3_1MG.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = file_example_MP3_1MG.mp3; sourceTree = "<group>"; };
 		C68DDA5D2034360200789E3C /* DPVideoMerger_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DPVideoMerger_Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C68DDA602034360200789E3C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C68DDA622034360200789E3C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -87,6 +89,7 @@
 		C63D87232036B77A00DD8D91 /* SampleVideos */ = {
 			isa = PBXGroup;
 			children = (
+				C67CCCE524DA111300846D8D /* file_example_MP3_1MG.mp3 */,
 				C63D87242036B77A00DD8D91 /* 1.mp4 */,
 				C63D87252036B77A00DD8D91 /* 2.mp4 */,
 				C63D87262036B77A00DD8D91 /* 3.MOV */,
@@ -245,6 +248,7 @@
 				C63D87292036B77A00DD8D91 /* 2.mp4 in Resources */,
 				C63D872B2036B77A00DD8D91 /* 4.mp4 in Resources */,
 				C68DDA6B2034360200789E3C /* LaunchScreen.storyboard in Resources */,
+				C67CCCE624DA111300846D8D /* file_example_MP3_1MG.mp3 in Resources */,
 				C63D87282036B77A00DD8D91 /* 1.mp4 in Resources */,
 				C68DDA682034360200789E3C /* Assets.xcassets in Resources */,
 				C68DDA662034360200789E3C /* Main.storyboard in Resources */,
@@ -473,7 +477,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MARKETING_VERSION = 1.5.8;
+				MARKETING_VERSION = 1.5.9;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.datt.DPVideoMerger-Swift";
@@ -503,7 +507,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MARKETING_VERSION = 1.5.8;
+				MARKETING_VERSION = 1.5.9;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.datt.DPVideoMerger-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";

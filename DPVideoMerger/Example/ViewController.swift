@@ -118,7 +118,8 @@ class ViewController: UIViewController {
                     fileURLs.append(url)
                 }
                 if fileURLs.count == self.arrIndex.count {
-                    DPVideoMerger().gridMergeVideos(withFileURLs: fileURLs, videoResolution: CGSize(width: 1000, height: 1000),isRepeatVideo: true, videoQuality:AVAssetExportPresetHighestQuality ,completion: {(_ mergedVideoFile: URL?, _ error: Error?) -> Void in
+                    let audioFile = Bundle.main.url(forResource: "file_example_MP3_1MG", withExtension: "mp3")
+                    DPVideoMerger().gridMergeVideos(withFileURLs: fileURLs, audioFileURL: audioFile, videoResolution: CGSize(width: 1000, height: 1000),isRepeatVideo: true, isRepeatAudio: true, videoQuality:AVAssetExportPresetHighestQuality ,completion: {(_ mergedVideoFile: URL?, _ error: Error?) -> Void in
                         self.activityIndicatorView.stopAnimating()
                         self.view.isUserInteractionEnabled = true
                         self.activityIndicatorView.isHidden = true
@@ -172,7 +173,7 @@ class ViewController: UIViewController {
                     fileURLs.append(url)
                 }
                 if fileURLs.count == self.arrIndex.count {
-                    DPVideoMerger().parallelMergeVideos(withFileURLs: fileURLs, videoResolution: CGSize(width: 1000, height: 900),isRepeatVideo: true, videoQuality:AVAssetExportPresetHighestQuality , alignment: .vertical ,completion: {(_ mergedVideoFile: URL?, _ error: Error?) -> Void in
+                    DPVideoMerger().parallelMergeVideos(withFileURLs: fileURLs, audioFileURL: fileURLs.first, videoResolution: CGSize(width: 1000, height: 900),isRepeatVideo: true, isRepeatAudio: true, videoQuality:AVAssetExportPresetHighestQuality , alignment: .vertical ,completion: {(_ mergedVideoFile: URL?, _ error: Error?) -> Void in
                         self.activityIndicatorView.stopAnimating()
                         self.view.isUserInteractionEnabled = true
                         self.activityIndicatorView.isHidden = true
