@@ -103,14 +103,16 @@ DPVideoMerger().mergeVideos(withFileURLs: fileURLs as! [URL], completion: {(_ me
 })
 
 
-/// Merge 4 videos to grid layout
+/// Merge  videos to grid matrix layout
 /// - Parameters:
-///   - videoFileURLs: Video file path URLs, Array of 4 videos that going to grid merge
+///   - videoFileURLs: Video file path URLs, Array of videos that going to grid merge
+///   - matrix: Video matrix position (eg 3x3, 4x2, 1x3, ...) (default:- 2x2)
 ///   - audioFileURL: Optional audio file for Merged Video
 ///   - videoResolution: Output video resolution
 ///   - isRepeatVideo: Repeat Video on grid if one or more video have shorter duartion time then output video duration
 ///   - isRepeatAudio: Repeat Audio if Merged video have longer duartion time then provided Audio duration
-///   - videoDuration: Output video duration (defult:  -1, find max duration from provided 4 videos)
+///   - isAudio: Allow Audio for grid video (default :- true)
+///   - videoDuration: Output video duration (defult:  -1, find max duration from provided  videos)
 ///   - videoQuality: AVAssetExportPresetMediumQuality(default) , AVAssetExportPresetLowQuality , AVAssetExportPresetHighestQuality
 ///   - completion: completion give  2 optional  values, 1)mergedVideoURL: URL path of successfully grid merged video  2)error: gives Error object if some error occur in videos merging process
 ///   - mergedVideoURL: URL path of successfully grid merged video
@@ -129,36 +131,5 @@ DPVideoMerger().gridMergeVideos(withFileURLs: fileURLs, videoResolution: CGSize(
     self.present(objAVPlayerVC, animated: true, completion: {() -> Void in
         objAVPlayerVC.player?.play()
     })
-})
-
-
-/// Merge side by side videos layout
-/// - Parameters:
-///   - videoFileURLs: Video file path URLs, Array  videos that going to parallel merge
-///   - audioFileURL: Optional audio file for Merged Video
-///   - videoResolution: Output video resolution
-///   - isRepeatVideo: Repeat Video if one or more video have shorter duartion time then output video duration
-///   - isRepeatAudio: Repeat Audio if Merged video have longer duartion time then provided Audio duration
-///   - videoDuration: Output video duration (defult:  -1, find max duration from provided videos)
-///   - videoQuality: AVAssetExportPresetMediumQuality(default) , AVAssetExportPresetLowQuality , AVAssetExportPresetHighestQuality
-///   - alignment: Video merge alignment -1) vertical 2) horizontal (defult: vertical)
-///   - completion: completion give  2 optional  values, 1)mergedVideoURL: URL path of successfully parallel merged video  2)error: gives Error object if some error occur in videos merging process
-///   - mergedVideoURL: URL path of successfully parallel merged video
-///   - error: gives Error object if some error occur in videos merging process
-DPVideoMerger().parallelMergeVideos(withFileURLs: fileURLs, videoResolution: CGSize(width: 1000, height: 600),isRepeatVideo: true, videoQuality:AVAssetExportPresetHighestQuality , alignment: .vertical ,completion: {(_ mergedVideoFile: URL?, _ error: Error?) -> Void in
-    if error != nil {
-        let errorMessage = "Could not merge videos: \(error?.localizedDescription ?? "error")"
-        let alert = UIAlertController(title: "Error", message: errorMessage, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { (a) in
-        }))
-        self.present(alert, animated: true) {() -> Void in }
-        return
-    }
-    let objAVPlayerVC = AVPlayerViewController()
-    objAVPlayerVC.player = AVPlayer(url: mergedVideoFile!)
-    self.present(objAVPlayerVC, animated: true, completion: {() -> Void in
-        objAVPlayerVC.player?.play()
-    })
-    
 })
 ```

@@ -13,13 +13,28 @@ import AVKit
 
 @objc protocol VideoMerger {
     func mergeVideos(withFileURLs videoFileURLs: [URL], videoResolution:CGSize, videoQuality:String, completion: @escaping (_ mergedVideoURL: URL?, _ error: Error?) -> Void)
-    func gridMergeVideos(withFileURLs videoFileURLs: [URL], audioFileURL: URL?, videoResolution: CGSize, isRepeatVideo: Bool, isRepeatAudio: Bool, videoDuration: Int, videoQuality: String, completion: @escaping (_ mergedVideoURL: URL?, _ error: Error?) -> Void)
+    func gridMergeVideos(withFileURLs videoFileURLs: [URL], matrix: DPVideoMatrix, audioFileURL: URL?, videoResolution: CGSize, isRepeatVideo: Bool, isRepeatAudio: Bool, isAudio: Bool,videoDuration: Int, videoQuality: String, completion: @escaping (_ mergedVideoURL: URL?, _ error: Error?) -> Void)
     func parallelMergeVideos(withFileURLs videoFileURLs: [URL], audioFileURL: URL?, videoResolution: CGSize, isRepeatVideo: Bool, isRepeatAudio: Bool, videoDuration: Int, videoQuality: String, alignment: ParallelMergeAlignment, completion: @escaping (_ mergedVideoURL: URL?, _ error: Error?) -> Void)
 }
 
 @objc public enum ParallelMergeAlignment : Int {
     case vertical
     case horizontal
+}
+
+@objc open class DPVideoMatrix: NSObject {
+    @objc fileprivate var rows: UInt
+    @objc fileprivate var columns: UInt
+    
+    public init(rows: UInt, columns: UInt) {
+        self.rows = rows
+        self.columns = columns
+    }
+    
+    @objc public func initWith(rows: UInt, columns: UInt) {
+        self.rows = rows
+        self.columns = columns
+    }
 }
 
 @objc open class DPVideoMerger : NSObject {
@@ -39,7 +54,10 @@ extension DPVideoMerger : VideoMerger {
         videoResolution:CGSize = CGSize(width: -1, height: -1),
         videoQuality:String = AVAssetExportPresetMediumQuality,
         completion: @escaping (_ mergedVideoURL: URL?, _ error: Error?) -> Void) {
-        
+        if videoFileURLs.count <= 1 {
+            DispatchQueue.main.async { completion(nil, self.videoMoreThenOneError()) }
+            return
+        }
         let composition = AVMutableComposition()
         guard let videoTrack: AVMutableCompositionTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid) else {
             DispatchQueue.main.async { completion(nil, self.videoTarckError()) }
@@ -120,22 +138,8 @@ extension DPVideoMerger : VideoMerger {
                 let layerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
                 
                 var isVideoAssetPortrait_ = false
-                let videoTransform: CGAffineTransform = videoAsset.preferredTransform
-                var videoAssetOrientation_: UIImage.Orientation = .up
-                if videoTransform.a == 0 && videoTransform.b == 1.0 && videoTransform.c == -1.0 && videoTransform.d == 0 {
-                    videoAssetOrientation_ = .right
-                    isVideoAssetPortrait_ = true
-                }
-                if videoTransform.a == 0 && videoTransform.b == -1.0 && videoTransform.c == 1.0 && videoTransform.d == 0 {
-                    videoAssetOrientation_ = .left
-                    isVideoAssetPortrait_ = true
-                }
-                if videoTransform.a == 1.0 && videoTransform.b == 0 && videoTransform.c == 0 && videoTransform.d == 1.0 {
-                    videoAssetOrientation_ = .up
-                }
-                if videoTransform.a == -1.0 && videoTransform.b == 0 && videoTransform.c == 0 && videoTransform.d == -1.0 {
-                    videoAssetOrientation_ = .down
-                }
+                let videoAssetOrientation_ = videoAssetOrientation(videoAsset)
+                if videoAssetOrientation_ == .right || videoAssetOrientation_ == .left { isVideoAssetPortrait_ = true }
                 
                 var videoAssetWidth: CGFloat = videoAsset.naturalSize.width
                 var videoAssetHeight: CGFloat = videoAsset.naturalSize.height
@@ -199,7 +203,7 @@ extension DPVideoMerger : VideoMerger {
                 instructions.append(videoCompositionInstruction)
                 currentTime = CMTimeAdd(currentTime, timeRange.duration)
             } catch {
-                print("Unable to load data: \(error)")
+                debugPrint("Unable to load data: \(error)")
                 isError = true
                 DispatchQueue.main.async { completion(nil, error) }
             }
@@ -209,30 +213,44 @@ extension DPVideoMerger : VideoMerger {
         }
     }
     
-    /// Merge 4 videos to grid layout
+    /// Merge videos to grid matrix layout
     /// - Parameters:
-    ///   - videoFileURLs: Video file path URLs, Array of 4 videos that going to grid merge
+    ///   - videoFileURLs: Video file path URLs, Array of videos that going to grid merge
+    ///   - matrix: Video matrix position (eg 3x3, 4x2, 1x3, ...) (default:- 2x2)
     ///   - audioFileURL: Optional audio file for Merged Video
     ///   - videoResolution: Output video resolution
     ///   - isRepeatVideo: Repeat Video on grid if one or more video have shorter duartion time then output video duration
     ///   - isRepeatAudio: Repeat Audio if Merged video have longer duartion time then provided Audio duration
-    ///   - videoDuration: Output video duration (defult:  -1, find max duration from provided 4 videos)
+    ///   - isAudio: Allow Audio for grid video (default :- true)
+    ///   - videoDuration: Output video duration (defult:  -1, find max duration from provided  videos)
     ///   - videoQuality: AVAssetExportPresetMediumQuality(default) , AVAssetExportPresetLowQuality , AVAssetExportPresetHighestQuality
     ///   - completion: completion give  2 optional  values, 1)mergedVideoURL: URL path of successfully grid merged video  2)error: gives Error object if some error occur in videos merging process
     ///   - mergedVideoURL: URL path of successfully grid merged video
     ///   - error: gives Error object if some error occur in videos merging process
     open func gridMergeVideos(withFileURLs
         videoFileURLs: [URL],
+        matrix: DPVideoMatrix = DPVideoMatrix(rows: 2, columns: 2),
         audioFileURL: URL? = nil,
         videoResolution: CGSize,
         isRepeatVideo: Bool = false,
         isRepeatAudio: Bool = false,
+        isAudio: Bool = true,
         videoDuration: Int = -1,
         videoQuality: String = AVAssetExportPresetMediumQuality,
         completion: @escaping (_ mergedVideoURL: URL?, _ error: Error?) -> Void) {
-        if videoFileURLs.count != 4 {
-            DispatchQueue.main.async { completion(nil, self.videoCountError()) }
+        if videoFileURLs.count <= 1 {
+            DispatchQueue.main.async { completion(nil, self.videoMoreThenOneError()) }
             return
+        }
+        let rows: CGFloat = CGFloat(matrix.rows)
+        let columns: CGFloat = CGFloat(matrix.columns)
+        if rows == 0 || columns == 0 {
+            DispatchQueue.main.async { completion(nil, self.gridMatrixError()) }
+            return
+        }
+        var videoFileURLs = videoFileURLs
+        if videoFileURLs.count > Int(rows * columns) {
+            videoFileURLs = videoFileURLs.dropLast(videoFileURLs.count - Int(rows * columns))
         }
         if (videoResolution.height < 100 || videoResolution.width < 100) {
             DispatchQueue.main.async { completion(nil, self.videoSizeError()) }
@@ -264,8 +282,12 @@ extension DPVideoMerger : VideoMerger {
                 DispatchQueue.main.async { completion(nil,self.videoTarckError()) }
                 return
             }
+            guard let videoAsset = asset.tracks(withMediaType: .video).first else {
+                DispatchQueue.main.async { completion(nil,self.videoTarckError()) }
+                return
+            }
             do {
-                try videoTrack.insertTimeRange(CMTimeRangeMake(start: .zero, duration: maxTime), of: asset.tracks(withMediaType: .video).first!, at: .zero)
+                try videoTrack.insertTimeRange(CMTimeRangeMake(start: .zero, duration: maxTime), of: videoAsset, at: .zero)
             } catch {
                 DispatchQueue.main.async { completion(nil,error) }
                 return
@@ -273,54 +295,83 @@ extension DPVideoMerger : VideoMerger {
             let currentFrameRate = Int(roundf((videoTrack.nominalFrameRate)))
             highestFrameRate = (currentFrameRate > highestFrameRate) ? currentFrameRate : highestFrameRate
             
+            var isVideoAssetPortrait_ = false
+            let videoAssetOrientation_ = videoAssetOrientation(videoAsset)
+            if videoAssetOrientation_ == .right || videoAssetOrientation_ == .left { isVideoAssetPortrait_ = true }
+            
+            var videoAssetWidth: CGFloat = videoAsset.naturalSize.width
+            var videoAssetHeight: CGFloat = videoAsset.naturalSize.height
+            if isVideoAssetPortrait_ {
+                videoAssetWidth = videoAsset.naturalSize.height
+                videoAssetHeight = videoAsset.naturalSize.width
+            }
+            
+            
             let subInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
     
             var Scale = CGAffineTransform(scaleX: 1, y: 1)
             var Move = CGAffineTransform(translationX: 0, y: 0)
+            var factor:CGFloat = 1.0
             var tx : CGFloat = 0
-            if videoResolution.width / 2 - (videoTrack.naturalSize.width) != 0 {
-                tx = ((videoResolution.width / 2 - (videoTrack.naturalSize.width)) / 2)
+            if videoResolution.width / columns - (videoAssetWidth) != 0 {
+                tx = ((videoResolution.width / columns - videoAssetWidth) / 2)
             }
             var ty : CGFloat = 0
-            if videoResolution.height / 2 - (videoTrack.naturalSize.height) != 0 {
-                ty = ((videoResolution.height / 2 - (videoTrack.naturalSize.height)) / 2)
+            if videoResolution.height / rows - (videoAssetHeight) != 0 {
+                ty = ((videoResolution.height / rows - videoAssetHeight) / 2)
             }
             if tx != 0 && ty != 0 {
-                if tx <= ty {
-                    let factor = CGFloat(videoResolution.width / 2 / videoTrack.naturalSize.width)
-                    Scale = CGAffineTransform(scaleX: CGFloat(factor), y: CGFloat(factor))
+                let factorWidth = CGFloat(videoResolution.width / columns / videoAssetWidth)
+                let factorHeight = CGFloat(videoResolution.height / rows / videoAssetHeight)
+                if factorHeight > factorWidth {
+                    factor = factorWidth
+                    Scale = CGAffineTransform(scaleX: factor, y: factor)
                     tx = 0
-                    ty = (videoResolution.height / 2 - videoTrack.naturalSize.height * factor) / 2
-                }
-                if tx > ty {
-                    let factor = CGFloat(videoResolution.height / 2 / videoTrack.naturalSize.height)
+                    ty = (videoResolution.height / rows - videoAssetHeight * factor) / 2
+                } else {
+                    factor = factorHeight
                     Scale = CGAffineTransform(scaleX: factor, y: factor)
                     ty = 0
-                    tx = (videoResolution.width / 2 - videoTrack.naturalSize.width * factor) / 2
+                    tx = (videoResolution.width / columns - videoAssetWidth * factor) / 2
                 }
             }
             
-            switch i {
-                case 0:
-                    Move = CGAffineTransform(translationX: CGFloat(0 + tx), y: 0 + ty)
-                case 1:
-                    Move = CGAffineTransform(translationX: videoResolution.width / 2 + tx, y: 0 + ty)
-                case 2:
-                    Move = CGAffineTransform(translationX: 0 + tx, y: videoResolution.height / 2 + ty)
-                case 3:
-                    Move = CGAffineTransform(translationX: videoResolution.width / 2 + tx, y: videoResolution.height / 2 + ty)
-                default:
-                    break
+            var orientation = CGAffineTransform.identity
+            switch videoAssetOrientation_ {
+            case .down:
+                orientation = CGAffineTransform(rotationAngle: degreeToRadian(180))
+                tx = (videoAssetWidth*factor) + CGFloat(tx)
+                ty = (videoAssetHeight*factor) + CGFloat(ty)
+            case .left:
+                orientation = CGAffineTransform(rotationAngle: degreeToRadian(270))
+                ty = (videoAssetHeight*factor) + CGFloat(ty)
+            case .right:
+                orientation = CGAffineTransform(rotationAngle: degreeToRadian(90))
+                tx = (videoAssetWidth * factor) + CGFloat(tx)
+            default:
+                break;
             }
             
-            guard insertVideoWithTransform(isRepeatVideo, subInstruction, Scale, Move, &arrAVMutableVideoCompositionLayerInstruction, asset, composition, completion, maxTime) else {
+            let columnIndex = CGFloat(i % Int(columns))
+            let rowIndex = CGFloat(i / Int(columns))
+//            debugPrint("\(columnIndex) x \(rowIndex)")
+            Move = CGAffineTransform(translationX: CGFloat((videoResolution.width / columns)*columnIndex) + tx, y: CGFloat((videoResolution.width / rows)*rowIndex) + ty)
+            
+            
+            guard insertVideoWithTransform(isRepeatVideo, subInstruction, orientation.concatenating(Scale), Move, &arrAVMutableVideoCompositionLayerInstruction, asset, composition, completion, maxTime) else {
                 return
             }
             
         }
-        
-        addAudioToMergedVideo(audioFileURL, composition, isRepeatAudio, maxTime, completion)
-        
+        if isAudio {
+            if let audioFileURL = audioFileURL {
+                addAudioToMergedVideo(audioFileURL, composition, isRepeatAudio, maxTime, completion)
+            } else {
+                videoFileURLs.forEach { (audioFileURL) in
+                    addAudioToMergedVideo(audioFileURL, composition, isRepeatAudio, maxTime, completion)
+                }
+            }
+        }
         instruction.layerInstructions = arrAVMutableVideoCompositionLayerInstruction.reversed()
 
         exportMergedVideo([instruction], highestFrameRate, videoResolution, composition, videoQuality, completion)
@@ -343,6 +394,7 @@ extension DPVideoMerger : VideoMerger {
     ///   - completion: completion give  2 optional  values, 1)mergedVideoURL: URL path of successfully parallel merged video  2)error: gives Error object if some error occur in videos merging process
     ///   - mergedVideoURL: URL path of successfully parallel merged video
     ///   - error: gives Error object if some error occur in videos merging process
+    @available(*, deprecated, message: "Use grid merge using matrix")
     open func parallelMergeVideos(withFileURLs
         videoFileURLs: [URL],
         audioFileURL: URL? = nil,
@@ -353,99 +405,15 @@ extension DPVideoMerger : VideoMerger {
         videoQuality: String = AVAssetExportPresetMediumQuality,
         alignment: ParallelMergeAlignment = .vertical,
         completion: @escaping (_ mergedVideoURL: URL?, _ error: Error?) -> Void) {
-        if videoFileURLs.count <= 1 {
-            DispatchQueue.main.async { completion(nil, self.videoMoreThenOneError()) }
-            return
+        
+        var matrix: DPVideoMatrix!
+        if alignment == .vertical {
+            matrix = DPVideoMatrix(rows: 1, columns: UInt(videoFileURLs.count))
+        } else {
+            matrix = DPVideoMatrix(rows: UInt(videoFileURLs.count), columns: 1)
         }
-        if (videoResolution.height < 100 || videoResolution.width < 100) {
-            DispatchQueue.main.async { completion(nil, self.videoSizeError()) }
-            return
-        }
-        
-        let composition = AVMutableComposition()
-        var maxTime = maxTimeFromVideos(videoFileURLs)
-        var highestFrameRate = 0
-        
-        if (videoDuration != -1) {
-            let videoDurationTime = CMTimeMake(value: Int64(videoDuration), timescale: 1)
-            if CMTimeCompare(videoDurationTime, maxTime) == -1 {
-                DispatchQueue.main.async { completion(nil, self.videoDurationError()) }
-                return
-            } else {
-                maxTime = CMTimeMake(value: Int64(videoDuration), timescale: 1)
-            }
-        }
-        
-        let instruction = AVMutableVideoCompositionInstruction()
-        instruction.timeRange = CMTimeRangeMake(start: .zero, duration: maxTime)
-
-        var arrAVMutableVideoCompositionLayerInstruction: [AVMutableVideoCompositionLayerInstruction] = []
-        for i in 0 ..< videoFileURLs.count {
-            let vCount : CGFloat = CGFloat(videoFileURLs.count)
-            let videoFileURL = videoFileURLs[i]
-            let asset = AVURLAsset(url: videoFileURL, options: nil)
-            guard let videoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid) else {
-                DispatchQueue.main.async { completion(nil,self.videoTarckError()) }
-                return
-            }
-            do {
-                try videoTrack.insertTimeRange(CMTimeRangeMake(start: .zero, duration: maxTime), of: asset.tracks(withMediaType: .video).first!, at: .zero)
-            } catch {
-                DispatchQueue.main.async { completion(nil,error) }
-                return
-            }
-            let currentFrameRate = Int(roundf((videoTrack.nominalFrameRate)))
-            highestFrameRate = (currentFrameRate > highestFrameRate) ? currentFrameRate : highestFrameRate
-            
-            let subInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: videoTrack)
-    
-            var Scale = CGAffineTransform(scaleX: 1, y: 1)
-            var Move = CGAffineTransform(translationX: 0, y: 0)
-            var tx : CGFloat = 0
-            if videoResolution.width / ((alignment == .vertical) ? vCount : 1) - (videoTrack.naturalSize.width) != 0 {
-                tx = ((videoResolution.width / ((alignment == .vertical) ? vCount : 1) - (videoTrack.naturalSize.width)) / 2)
-            }
-            var ty : CGFloat = 0
-            if videoResolution.height / ((alignment == .vertical) ? 1 : vCount) - (videoTrack.naturalSize.height) != 0 {
-                ty = ((videoResolution.height / ((alignment == .vertical) ? 1 : vCount) - (videoTrack.naturalSize.height)) / 2)
-            }
-            if tx != 0 && ty != 0 {
-                if tx <= ty {
-                    let factor = CGFloat(videoResolution.width / ((alignment == .vertical) ? vCount : 1) / videoTrack.naturalSize.width)
-                    Scale = CGAffineTransform(scaleX: CGFloat(factor), y: CGFloat(factor))
-                    tx = 0
-                    ty = (videoResolution.height / ((alignment == .vertical) ? 1 : vCount) - videoTrack.naturalSize.height * factor) / 2
-                }
-                if tx > ty {
-                    let factor = CGFloat(videoResolution.height / ((alignment == .vertical) ? 1 : vCount) / videoTrack.naturalSize.height)
-                    Scale = CGAffineTransform(scaleX: factor, y: factor)
-                    ty = 0
-                    tx = (videoResolution.width / ((alignment == .vertical) ? vCount : 1) - videoTrack.naturalSize.width * factor) / 2
-                }
-            }
-            
-            switch i {
-                case 0:
-                    Move = CGAffineTransform(translationX: CGFloat(0 + tx), y: 0 + ty)
-                default:
-                    Move = CGAffineTransform(translationX: ((alignment == .vertical) ? (videoResolution.width / (vCount/CGFloat(i))) : 0)  + tx, y: ((alignment == .vertical) ? 0 : (videoResolution.height / (vCount/CGFloat(i)))) + ty)
-                    break
-            }
-            
-            guard insertVideoWithTransform(isRepeatVideo, subInstruction, Scale, Move, &arrAVMutableVideoCompositionLayerInstruction, asset, composition, completion, maxTime) else {
-                return
-            }
-            
-        }
-        
-        addAudioToMergedVideo(audioFileURL, composition, isRepeatAudio, maxTime, completion)
-        
-        instruction.layerInstructions = arrAVMutableVideoCompositionLayerInstruction.reversed()
-
-        exportMergedVideo([instruction], highestFrameRate, videoResolution, composition, videoQuality, completion)
-        
+       gridMergeVideos(withFileURLs: videoFileURLs, matrix: matrix, audioFileURL: audioFileURL, videoResolution: videoResolution, isRepeatVideo: isRepeatVideo, isRepeatAudio: isRepeatAudio, isAudio: true, videoDuration: videoDuration, videoQuality: videoQuality, completion: completion)
     }
-    
 
 }
 
@@ -471,6 +439,21 @@ fileprivate extension DPVideoMerger {
             }
         }
         return maxTime
+    }
+    
+    func videoAssetOrientation(_ videoAsset: AVAssetTrack) -> UIImage.Orientation {
+        let videoTransform: CGAffineTransform = videoAsset.preferredTransform
+        var videoAssetOrientation_: UIImage.Orientation = .up
+        if videoTransform.a == 0 && videoTransform.b == 1.0 && videoTransform.c == -1.0 && videoTransform.d == 0 {
+            videoAssetOrientation_ = .right
+        } else if videoTransform.a == 0 && videoTransform.b == -1.0 && videoTransform.c == 1.0 && videoTransform.d == 0 {
+            videoAssetOrientation_ = .left
+        } else if videoTransform.a == 1.0 && videoTransform.b == 0 && videoTransform.c == 0 && videoTransform.d == 1.0 {
+            videoAssetOrientation_ = .up
+        } else if videoTransform.a == -1.0 && videoTransform.b == 0 && videoTransform.c == 0 && videoTransform.d == -1.0 {
+            videoAssetOrientation_ = .down
+        }
+        return videoAssetOrientation_
     }
     
     func insertVideoWithTransform(_ isRepeatVideo: Bool, _ subInstruction: AVMutableVideoCompositionLayerInstruction, _ Scale: CGAffineTransform, _ Move: CGAffineTransform, _ arrAVMutableVideoCompositionLayerInstruction: inout [AVMutableVideoCompositionLayerInstruction], _ asset: AVURLAsset, _ composition: AVMutableComposition, _ completion: @escaping (URL?, Error?) -> Void, _ maxTime: CMTime) -> Bool {
@@ -526,13 +509,13 @@ fileprivate extension DPVideoMerger {
                 DispatchQueue.main.async {completion(nil, self.audioTarckError()) }
                 return
             }
-            if (isRepeatAudio) {
-                do {
-                    try audioTrack.insertTimeRange(CMTimeRangeMake(start: .zero, duration: asset.duration), of: audioAsset, at: .zero)
-                } catch {
-                    DispatchQueue.main.async { completion(nil,error) }
-                    return
-                }
+            do {
+                try audioTrack.insertTimeRange(CMTimeRangeMake(start: .zero, duration: maxTime.seconds < asset.duration.seconds ? maxTime : asset.duration), of: audioAsset, at: .zero)
+            } catch {
+                DispatchQueue.main.async { completion(nil,error) }
+                return
+            }
+            if (isRepeatAudio && maxTime.seconds > asset.duration.seconds) {
                 var dur = asset.duration
                 repeat {
                     dur = CMTimeAdd(dur, asset.duration)
@@ -555,13 +538,6 @@ fileprivate extension DPVideoMerger {
                     }
                     
                 } while CMTimeCompare(maxTime, dur) != -1
-            } else {
-                do {
-                    try audioTrack.insertTimeRange(CMTimeRangeMake(start: .zero, duration: asset.duration), of: audioAsset, at: .zero)
-                } catch {
-                    DispatchQueue.main.async { completion(nil,error) }
-                    return
-                }
             }
         }
     }
@@ -581,8 +557,8 @@ fileprivate extension DPVideoMerger {
         exporter?.outputFileType = .mp4
         exporter?.shouldOptimizeForNetworkUse = true
         
-        print("Composition Duration: %ld s", lround(CMTimeGetSeconds(composition.duration)))
-        print("Composition Framerate: %d fps", highestFrameRate)
+        debugPrint("Composition Duration: %ld s", lround(CMTimeGetSeconds(composition.duration)))
+        debugPrint("Composition Framerate: %d fps", highestFrameRate)
         
         let exportCompletion: (() -> Void) = {() -> Void in
             DispatchQueue.main.async(execute: {() -> Void in
@@ -593,22 +569,22 @@ fileprivate extension DPVideoMerger {
             exportSession.exportAsynchronously(completionHandler: {() -> Void in
                 switch exportSession.status {
                 case .completed:
-                    print("Successfully merged: %@", exportSession.outputURL ?? "")
+                    debugPrint("Successfully merged: %@", exportSession.outputURL ?? "")
                     exportCompletion()
                 case .failed:
-                    print("Failed %@",exportSession.error ?? "")
+                    debugPrint("Failed %@",exportSession.error ?? "")
                     exportCompletion()
                 case .cancelled:
-                    print("Cancelled")
+                    debugPrint("Cancelled")
                     exportCompletion()
                 case .unknown:
-                    print("Unknown")
+                    debugPrint("Unknown")
                 case .exporting:
-                    print("Exporting")
+                    debugPrint("Exporting")
                 case .waiting:
-                    print("Wating")
+                    debugPrint("Wating")
                 @unknown default:
-                    print("default")
+                    debugPrint("default")
                 }
             })
         }
@@ -657,7 +633,14 @@ fileprivate extension DPVideoMerger {
     func videoMoreThenOneError() -> Error {
         let userInfo: [AnyHashable : Any] =
             [ NSLocalizedDescriptionKey :  NSLocalizedString("error", value: "Provide more then one Video", comment: "") ,
-              NSLocalizedFailureReasonErrorKey : NSLocalizedString("error", value: "parallelMerge required more then one Video", comment: "")]
+              NSLocalizedFailureReasonErrorKey : NSLocalizedString("error", value: "Video merge required more then one Video", comment: "")]
+        return NSError(domain: String(describing:DPVideoMerger.self), code: 404, userInfo: (userInfo as! [String : Any]))
+    }
+    
+    func gridMatrixError() -> Error {
+        let userInfo: [AnyHashable : Any] =
+            [ NSLocalizedDescriptionKey :  NSLocalizedString("error", value: "Grid matrix value error", comment: "") ,
+              NSLocalizedFailureReasonErrorKey : NSLocalizedString("error", value: "Matrix rows or columns value should not be zero.", comment: "")]
         return NSError(domain: String(describing:DPVideoMerger.self), code: 404, userInfo: (userInfo as! [String : Any]))
     }
     

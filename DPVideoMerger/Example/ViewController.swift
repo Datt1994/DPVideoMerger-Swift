@@ -119,7 +119,7 @@ class ViewController: UIViewController {
                 }
                 if fileURLs.count == self.arrIndex.count {
                     let audioFile = Bundle.main.url(forResource: "file_example_MP3_1MG", withExtension: "mp3")
-                    DPVideoMerger().gridMergeVideos(withFileURLs: fileURLs, audioFileURL: audioFile, videoResolution: CGSize(width: 1000, height: 1000),isRepeatVideo: true, isRepeatAudio: true, videoQuality:AVAssetExportPresetHighestQuality ,completion: {(_ mergedVideoFile: URL?, _ error: Error?) -> Void in
+                    DPVideoMerger().gridMergeVideos(withFileURLs: fileURLs, matrix: DPVideoMatrix(rows: 4, columns: 2), audioFileURL: audioFile, videoResolution: CGSize(width: 1000, height: 1000),isRepeatVideo: true, isRepeatAudio: true, isAudio: true,videoQuality:AVAssetExportPresetHighestQuality ,completion: {(_ mergedVideoFile: URL?, _ error: Error?) -> Void in
                         self.activityIndicatorView.stopAnimating()
                         self.view.isUserInteractionEnabled = true
                         self.activityIndicatorView.isHidden = true
@@ -173,6 +173,8 @@ class ViewController: UIViewController {
                     fileURLs.append(url)
                 }
                 if fileURLs.count == self.arrIndex.count {
+                    // .vertical = DPVideoMatrix(rows: 1, columns: fileURLs.count)
+                    // .horizontal = DPVideoMatrix(rows: fileURLs.count, columns: 0)
                     DPVideoMerger().parallelMergeVideos(withFileURLs: fileURLs, audioFileURL: fileURLs.first, videoResolution: CGSize(width: 1000, height: 900),isRepeatVideo: true, isRepeatAudio: true, videoQuality:AVAssetExportPresetHighestQuality , alignment: .vertical ,completion: {(_ mergedVideoFile: URL?, _ error: Error?) -> Void in
                         self.activityIndicatorView.stopAnimating()
                         self.view.isUserInteractionEnabled = true
@@ -209,6 +211,10 @@ extension ViewController : UICollectionViewDelegate , UICollectionViewDataSource
         imageManager.requestImage(for: object, targetSize: CGSize(width: collectionView.frame.width/2 - 10, height: collectionView.frame.width/2 - 10), contentMode: .aspectFit, options: nil, resultHandler: { result, info in
             cell.img.image = result
         })
+        cell.img.alpha = 1
+        if arrIndex.contains(indexPath) {
+            cell.img.alpha = 0.5
+        }
         return cell ;
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
