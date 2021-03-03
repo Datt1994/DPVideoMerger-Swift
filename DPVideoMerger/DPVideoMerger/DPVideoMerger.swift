@@ -63,10 +63,6 @@ extension DPVideoMerger : VideoMerger {
             DispatchQueue.main.async { completion(nil, self.videoTarckError()) }
             return
         }
-        guard let audioTrack: AVMutableCompositionTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) else {
-            DispatchQueue.main.async { completion(nil, self.audioTarckError()) }
-            return
-        }
         var instructions = [AVVideoCompositionInstructionProtocol]()
         var isError = false
         var currentTime: CMTime = CMTime.zero
@@ -121,7 +117,8 @@ extension DPVideoMerger : VideoMerger {
                 DispatchQueue.main.async { completion(nil, self.videoTarckError()) }
                 return
             }
-            guard let audioAsset: AVAssetTrack = asset.tracks(withMediaType: .audio).first else {
+            let allAudioAssets = asset.tracks(withMediaType: .audio)
+            guard let _: AVAssetTrack = asset.tracks(withMediaType: .audio).first else {
                 DispatchQueue.main.async {completion(nil, self.audioTarckError()) }
                 return
             }
@@ -131,7 +128,13 @@ extension DPVideoMerger : VideoMerger {
             let timeRange: CMTimeRange = CMTimeRangeMake(start: trimmingTime, duration: CMTimeSubtract((videoAsset.timeRange.duration), trimmingTime))
             do {
                 try videoTrack.insertTimeRange(timeRange, of: videoAsset, at: currentTime)
-                try audioTrack.insertTimeRange(timeRange, of: audioAsset, at: currentTime)
+                for audioAsset in allAudioAssets {
+                    guard let audioTrack: AVMutableCompositionTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid) else {
+                        DispatchQueue.main.async { completion(nil, self.audioTarckError()) }
+                        return
+                    }
+                    try audioTrack.insertTimeRange(timeRange, of: audioAsset, at: currentTime)
+                }
                 
                 let videoCompositionInstruction = AVMutableVideoCompositionInstruction.init()
                 videoCompositionInstruction.timeRange = CMTimeRangeMake(start: currentTime, duration: timeRange.duration)
