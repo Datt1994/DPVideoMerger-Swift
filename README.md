@@ -6,7 +6,13 @@
 [![Version](https://img.shields.io/cocoapods/v/DPVideoMerger-Swift.svg?style=flat)](http://cocoapods.org/pods/DPVideoMerger-Swift)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 
-**For Objective C** :- [DPVideoMerger](https://github.com/Datt1994/DPVideoMerger)
+| Sequence | Parallel | Grid |
+| --- | --- | --- |
+| ![Sequence](https://user-images.githubusercontent.com/19645535/109975106-4978a180-7d20-11eb-92b7-4d19ba2f3df0.gif) | ![Parallel](https://user-images.githubusercontent.com/19645535/109975267-7af16d00-7d20-11eb-9ba2-c52fbdf1ade8.gif) | ![Grid](https://user-images.githubusercontent.com/19645535/109975324-8a70b600-7d20-11eb-9d81-3679e8dbd31b.gif) |
+
+
+
+
 
 ## Installation with CocoaPods
 
