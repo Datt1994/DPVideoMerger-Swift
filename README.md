@@ -11,12 +11,9 @@
 | ![Sequence](https://user-images.githubusercontent.com/19645535/109975106-4978a180-7d20-11eb-92b7-4d19ba2f3df0.gif) | ![Parallel](https://user-images.githubusercontent.com/19645535/109975267-7af16d00-7d20-11eb-9ba2-c52fbdf1ade8.gif) | ![Grid](https://user-images.githubusercontent.com/19645535/109975324-8a70b600-7d20-11eb-9d81-3679e8dbd31b.gif) |
 
 
-
-
-
 ## Installation with CocoaPods
 
-[CocoaPods](http://cocoapods.org) is a dependency manager for Objective-C. You can install it with the following command:
+[CocoaPods](http://cocoapods.org) is a dependency manager for Objective-C & Swift. You can install it with the following command:
 
 ```bash
 $ gem install cocoapods
@@ -27,7 +24,7 @@ To integrate DPVideoMerger into your Xcode project using CocoaPods, specify it i
 
 ```ruby
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, '8.0'
+platform :ios, '9.0'
 
 target 'TargetName' do
 use_frameworks!
