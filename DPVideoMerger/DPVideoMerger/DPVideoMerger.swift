@@ -121,10 +121,6 @@ extension DPVideoMerger : VideoMerger {
                 return
             }
             let allAudioAssets = asset.tracks(withMediaType: .audio)
-            guard let _: AVAssetTrack = asset.tracks(withMediaType: .audio).first else {
-                DispatchQueue.main.async {completion(nil, self.audioTarckError()) }
-                return
-            }
             let currentFrameRate = Int(roundf((videoAsset.nominalFrameRate)))
             highestFrameRate = (currentFrameRate > highestFrameRate) ? currentFrameRate : highestFrameRate
             let trimmingTime: CMTime = CMTimeMake(value: Int64(lround(Double((videoAsset.nominalFrameRate) / (videoAsset.nominalFrameRate)))), timescale: Int32((videoAsset.nominalFrameRate)))
