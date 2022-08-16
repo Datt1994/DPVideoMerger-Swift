@@ -41,6 +41,11 @@ import AVKit
 }
 // MARK:-  Public Functions
 extension DPVideoMerger : VideoMerger {
+	static let AVURLAssetOptions: [String : Any] = [
+		AVURLAssetPreferPreciseDurationAndTimingKey: true,
+		"AVURLAssetOutOfBandMIMETypeKey": "video/mp4"
+	]
+
     /// Multiple videos merge in one video with manage scale & aspect ratio
     /// - Parameters:
     ///   - videoFileURLs: Video file path URLs, Array of videos that going to merge
@@ -70,8 +75,7 @@ extension DPVideoMerger : VideoMerger {
         var highestFrameRate = 0
         if videoResolution == CGSize(width: -1, height: -1) {
         for  videoFileURL in videoFileURLs {
-            let options = [AVURLAssetPreferPreciseDurationAndTimingKey: true]
-            let asset = AVURLAsset(url: videoFileURL, options: options)
+            let asset = AVURLAsset(url: videoFileURL, options: DPVideoMerger.AVURLAssetOptions)
             guard let videoAsset: AVAssetTrack = asset.tracks(withMediaType: .video).first else {
                 return
             }
@@ -111,17 +115,12 @@ extension DPVideoMerger : VideoMerger {
         }
         
         for  videoFileURL in videoFileURLs {
-            let options = [AVURLAssetPreferPreciseDurationAndTimingKey: true]
-            let asset = AVURLAsset(url: videoFileURL, options: options)
+			let asset = AVURLAsset(url: videoFileURL, options: DPVideoMerger.AVURLAssetOptions)
             guard let videoAsset: AVAssetTrack = asset.tracks(withMediaType: .video).first else {
                 DispatchQueue.main.async { completion(nil, self.videoTarckError()) }
                 return
             }
             let allAudioAssets = asset.tracks(withMediaType: .audio)
-            guard let _: AVAssetTrack = asset.tracks(withMediaType: .audio).first else {
-                DispatchQueue.main.async {completion(nil, self.audioTarckError()) }
-                return
-            }
             let currentFrameRate = Int(roundf((videoAsset.nominalFrameRate)))
             highestFrameRate = (currentFrameRate > highestFrameRate) ? currentFrameRate : highestFrameRate
             let trimmingTime: CMTime = CMTimeMake(value: Int64(lround(Double((videoAsset.nominalFrameRate) / (videoAsset.nominalFrameRate)))), timescale: Int32((videoAsset.nominalFrameRate)))
@@ -433,10 +432,7 @@ fileprivate extension DPVideoMerger {
     func maxTimeFromVideos(_ videoFileURLs : [URL]) -> CMTime {
         var maxTime = AVURLAsset(url: videoFileURLs[0], options: nil).duration
         for  videoFileURL in videoFileURLs {
-            let options = [
-                AVURLAssetPreferPreciseDurationAndTimingKey: NSNumber(value: true)
-            ]
-            let asset = AVURLAsset(url: videoFileURL, options: options)
+            let asset = AVURLAsset(url: videoFileURL, options: DPVideoMerger.AVURLAssetOptions)
             if CMTimeCompare(maxTime, asset.duration) == -1 {
                 maxTime = asset.duration
             }
@@ -506,8 +502,7 @@ fileprivate extension DPVideoMerger {
                 DispatchQueue.main.async { completion(nil, self.audioTarckError()) }
                 return
             }
-            let options = [AVURLAssetPreferPreciseDurationAndTimingKey: true]
-            let asset = AVURLAsset(url: audioFileURL, options: options)
+            let asset = AVURLAsset(url: audioFileURL, options: DPVideoMerger.AVURLAssetOptions)
             guard let audioAsset: AVAssetTrack = asset.tracks(withMediaType: .audio).first else {
                 DispatchQueue.main.async {completion(nil, self.audioTarckError()) }
                 return
